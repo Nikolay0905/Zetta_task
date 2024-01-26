@@ -1,85 +1,89 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import Form from "./components/Form.vue";
+import Table from "./components/Table.vue";
+import { ref } from "vue";
+import FormEntity from "./Entities/FormEntity.ts";
+
+const transactionData = ref([
+  {
+    id: 1,
+    name: "Nikolay",
+    surname: "Bachiyski",
+    email: "nikolayb0905@gmail.com",
+    age: 20,
+    favoriteColor: "red",
+    contactReference: "SMS",
+  },
+  {
+    id: 2,
+    name: "Nikolay",
+    surname: "Bachiyski",
+    email: "nikolayb0905@gmail.com",
+    age: 20,
+    favoriteColor: "blue",
+    contactReference: "SMS",
+  },
+  {
+    id: 3,
+    name: "Nikolay",
+    surname: "Bachiyski",
+    email: "nikolayb0905@gmail.com",
+    age: 20,
+    favoriteColor: "red",
+    contactReference: "phone call",
+  },
+  {
+    id: 4,
+    name: "Nikolay",
+    surname: "Bachiyski",
+    email: "nikolayb@gmail.com",
+    age: 20,
+    favoriteColor: "red",
+    contactReference: "SMS",
+  },
+]);
+
+const generateUniqueId = () => {
+  return Math.floor(Math.random() * 100000);
+};
+
+const newItem = (data: FormEntity) => {
+  transactionData.value.push({ ...data, id: generateUniqueId() });
+};
+
+const deleteItem = (index: number) => {
+  const indexOfObject = transactionData.value.findIndex(
+    (item) => item.id == index
+  );
+  transactionData.value.splice(indexOfObject, 1);
+};
+
+const exportToJSON = () => {
+  const transformData: FormEntity[] = JSON.parse(
+    JSON.stringify(transactionData.value)
+  );
+  transformData.forEach((item: any) => delete item["delete"]);
+  const jsonData = JSON.stringify(transformData);
+  const blob = new Blob([jsonData], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "data.json";
+
+  link.click();
+
+  URL.revokeObjectURL(url);
+};
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <b-container fluid="md" class="w-80">
+    <Form @newItem="newItem" />
+    <Table
+      @deleteItem="deleteItem"
+      @exportDataToJson="exportToJSON"
+      :data="transactionData"
+    />
+  </b-container>
 </template>
-
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
-</style>
